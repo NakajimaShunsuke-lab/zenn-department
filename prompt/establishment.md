@@ -1,7 +1,7 @@
 # 編集部Zenn部門の設立
 
 Agent Teamsとして設立したい
-Zennの管理はzenn-repoで行いCLIで行います
+Zennの記事の管理はzenn-repoで行いCLIで行います
 
 ### 1. AIエージェントの役割分担
 
