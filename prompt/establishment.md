@@ -2,6 +2,7 @@
 
 Agent Teamsとして設立したい
 Zennの記事の管理はzenn-repoで行いCLIで行います
+このAgent Teamsの仕様の詳細をREADEMEに記載してください
 
 ### 1. AIエージェントの役割分担
 
