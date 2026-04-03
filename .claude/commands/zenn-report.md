@@ -13,6 +13,11 @@
 3. **過去レポート参照:** `context/` 内の過去レポートを参照する
 4. **レポート作成:** 以下の構成でレポートを作成する
 5. **保存:** `context/report_YYYYMMDD_テーマ名.md` に保存する
+6. **Notion同期:** レポート保存後、以下のコマンドでNotionデータベースに同期する
+   ```bash
+   npm run sync-notion
+   ```
+   ※ `.env` に `NOTION_TOKEN` と `NOTION_DATABASE_ID` が設定されている場合のみ実行する。未設定の場合はスキップし、ユーザーに通知する
 
 ## レポート構成
 

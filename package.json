@@ -1,0 +1,12 @@
+{
+  "name": "editorial-zenn",
+  "version": "1.0.0",
+  "description": "Zenn Editorial Department - Agent Teams",
+  "type": "module",
+  "scripts": {
+    "sync-notion": "node scripts/sync-to-notion.mjs"
+  },
+  "dependencies": {
+    "@notionhq/client": "^2.2.0"
+  }
+}

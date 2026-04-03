@@ -6,6 +6,7 @@
 
 - `zenn-repo/` — Zenn CLIで管理される記事リポジトリ（articles, briefs, images）
 - `context/` — 記事作成レポートのナレッジ蓄積ディレクトリ
+- `scripts/` — 自動化スクリプト（Notion同期など）
 - `CONTRIBUTING_ZENN.md` — 全エージェントが遵守するZenn記事ガイドライン
 
 ## 共通ルール
@@ -17,6 +18,8 @@
 - テンプレートは `zenn-repo/.templates/` を参照する
 - レポートは `context/` ディレクトリに `report_YYYYMMDD_テーマ名.md` の形式で保存する
 - `context/` に蓄積されたレポートは記事作成時にナレッジとして参照すること
+- レポート作成後は `npm run sync-notion` でNotionデータベースに同期すること（`.env` 設定済みの場合）
+- `context/` 内のレポートは整理のため削除されることがあるが、Notionのデータは削除しない
 - 記事の `published` は初稿時点では必ず `false` にし、最終承認後に `true` へ変更する
 
 ## ワークフロー
