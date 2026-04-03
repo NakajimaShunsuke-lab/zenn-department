@@ -4,7 +4,8 @@
   "description": "Zenn Editorial Department - Agent Teams",
   "type": "module",
   "scripts": {
-    "sync-notion": "node scripts/sync-to-notion.mjs"
+    "sync-notion": "node scripts/sync-to-notion.mjs",
+    "sync-notion:update": "node scripts/sync-to-notion.mjs --update"
   },
   "dependencies": {
     "@notionhq/client": "^2.2.0"
