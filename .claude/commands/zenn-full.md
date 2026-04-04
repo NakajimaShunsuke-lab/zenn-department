@@ -76,7 +76,7 @@
 
 - ガイドライン: `CONTRIBUTING_ZENN.md`
 - テンプレート: `zenn-repo/.templates/`
-- 過去のナレッジ: `context/`
+- 過去のナレッジ: `context/report/`
 - 既存記事: `zenn-repo/articles/`
 - 既存企画書: `zenn-repo/briefs/`
 

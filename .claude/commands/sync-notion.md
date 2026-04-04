@@ -1,6 +1,6 @@
 # Notion同期 — contextレポートをNotionデータベースに登録
 
-context/ ディレクトリ内のレポートファイルをNotionデータベースに同期します。
+context/report/ ディレクトリ内のレポートファイルをNotionデータベースに同期します。
 新規レポートのみ追加し、Notion側のデータは削除しません。
 
 ## 実行手順

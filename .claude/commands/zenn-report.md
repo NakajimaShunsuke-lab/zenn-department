@@ -10,9 +10,9 @@
    - 記事: `zenn-repo/articles/{slug}.md`
    - 画像設計書: `zenn-repo/images/{slug}/ogp-design.md`（存在する場合）
 2. **gitログの確認:** 記事に関連するコミット履歴を確認する
-3. **過去レポート参照:** `context/` 内の過去レポートを参照する
+3. **過去レポート参照:** `context/report/` 内の過去レポートを参照する
 4. **レポート作成:** 以下の構成でレポートを作成する
-5. **保存:** `context/report_YYYYMMDD_テーマ名.md` に保存する
+5. **保存:** `context/report/report_YYYYMMDD_テーマ名.md` に保存する
 6. **Notion同期:** レポート保存後、以下のコマンドでNotionデータベースに同期する
    ```bash
    npm run sync-notion

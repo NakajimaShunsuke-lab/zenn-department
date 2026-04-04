@@ -29,11 +29,11 @@
 - 企画書: `zenn-repo/briefs/`
 - ガイドライン: `CONTRIBUTING_ZENN.md`
 - テンプレート: `zenn-repo/.templates/`
-- 過去のナレッジ: `context/` ディレクトリ内のレポート
+- 過去のナレッジ: `context/report/` ディレクトリ内のレポート
 
 ## 注意事項
 
-- `context/` に過去のレポートがあれば参照し、過去の改善点を活かすこと
+- `context/report/` に過去のレポートがあれば参照し、過去の改善点を活かすこと
 - 執筆完了後、ユーザー（統括ディレクター）に初稿の方向性確認を求めること
 
 $ARGUMENTS

@@ -1,8 +1,8 @@
 /**
- * context/ ディレクトリ内のレポートをNotionデータベースに同期するスクリプト
+ * context/report/ ディレクトリ内のレポートをNotionデータベースに同期するスクリプト
  *
  * - 新規レポートのみ追加（既にNotionに登録済みのファイルはスキップ）
- * - Notionのデータは削除しない（contextから削除されてもNotion側は残る）
+ * - Notionのデータは削除しない（context/reportから削除されてもNotion側は残る）
  *
  * 環境変数:
  *   NOTION_TOKEN       - Notion Internal Integration Token
@@ -13,7 +13,7 @@ import { Client } from "@notionhq/client";
 import { readdir, readFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 
-const CONTEXT_DIR = resolve(import.meta.dirname, "..", "context");
+const CONTEXT_DIR = resolve(import.meta.dirname, "..", "context", "report");
 
 // ---------------------------------------------------------------------------
 // 環境変数チェック
