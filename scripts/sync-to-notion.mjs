@@ -14,6 +14,7 @@ import { readdir, readFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 
 const CONTEXT_DIR = resolve(import.meta.dirname, "..", "context", "report");
+const ANALYTICS_DIR = resolve(import.meta.dirname, "..", "context", "analytics");
 
 // ---------------------------------------------------------------------------
 // 環境変数チェック
@@ -30,6 +31,127 @@ if (!NOTION_TOKEN || !NOTION_DATABASE_ID) {
 }
 
 const notion = new Client({ auth: NOTION_TOKEN });
+
+// ---------------------------------------------------------------------------
+// アナリティクスCSVパーサー
+// ---------------------------------------------------------------------------
+
+/**
+ * context/analytics/ 内の最新CSVファイルを読み込み、記事タイトル→データのMapを返す
+ * CSVファイル名は計測期間（例: 20260401-20260403.csv）
+ */
+async function loadLatestAnalytics() {
+  const analyticsMap = new Map(); // 記事タイトル → { views, users, engagementTime, events, period }
+
+  let files;
+  try {
+    files = (await readdir(ANALYTICS_DIR))
+      .filter((f) => f.endsWith(".csv"))
+      .sort();
+  } catch {
+    console.log("  アナリティクスディレクトリが見つかりません。スキップします。");
+    return analyticsMap;
+  }
+
+  if (files.length === 0) {
+    console.log("  アナリティクスCSVファイルがありません。");
+    return analyticsMap;
+  }
+
+  // 最新のCSVファイルを使用
+  const latestFile = files[files.length - 1];
+  const period = latestFile.replace(".csv", "");
+  console.log(`  アナリティクスファイル: ${latestFile}（期間: ${period}）`);
+
+  const content = await readFile(join(ANALYTICS_DIR, latestFile), "utf-8");
+  const lines = content.split("\n");
+
+  // ヘッダー行を検出（「ページ タイトル」で始まる行）
+  let dataStart = -1;
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].startsWith("ページ タイトルとスクリーン クラス,")) {
+      dataStart = i + 1;
+      break;
+    }
+  }
+
+  if (dataStart === -1) {
+    console.log("  CSVのヘッダー行が見つかりません。");
+    return analyticsMap;
+  }
+
+  for (let i = dataStart; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+
+    // CSVパース（ダブルクォート対応）
+    const fields = parseCSVLine(line);
+    if (fields.length < 6) continue;
+
+    const title = fields[0];
+    const views = parseInt(fields[1], 10) || 0;
+    const users = parseInt(fields[2], 10) || 0;
+    const engagementTime = parseFloat(fields[4]) || 0;
+    const events = parseInt(fields[5], 10) || 0;
+
+    analyticsMap.set(title, { views, users, engagementTime, events, period });
+  }
+
+  console.log(`  アナリティクスデータ: ${analyticsMap.size}件の記事`);
+  return analyticsMap;
+}
+
+/**
+ * ダブルクォート対応のCSV行パーサー
+ */
+function parseCSVLine(line) {
+  const fields = [];
+  let current = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQuotes) {
+      if (ch === '"' && line[i + 1] === '"') {
+        current += '"';
+        i++;
+      } else if (ch === '"') {
+        inQuotes = false;
+      } else {
+        current += ch;
+      }
+    } else {
+      if (ch === '"') {
+        inQuotes = true;
+      } else if (ch === ",") {
+        fields.push(current);
+        current = "";
+      } else {
+        current += ch;
+      }
+    }
+  }
+  fields.push(current);
+  return fields;
+}
+
+/**
+ * レポートのタイトルからアナリティクスデータを検索する
+ * レポートのタイトルと GA のページタイトルをマッチングする
+ */
+function findAnalyticsForReport(analyticsMap, reportTitle) {
+  // 完全一致
+  if (analyticsMap.has(reportTitle)) {
+    return analyticsMap.get(reportTitle);
+  }
+  // 部分一致（レポートタイトルがGAタイトルに含まれる or 逆）
+  for (const [gaTitle, data] of analyticsMap) {
+    if (gaTitle.includes(reportTitle) || reportTitle.includes(gaTitle)) {
+      return data;
+    }
+  }
+  return null;
+}
 
 // ---------------------------------------------------------------------------
 // 初回セットアップ: 不足プロパティをNotionデータベースに追加/リネームする
@@ -57,6 +179,22 @@ async function ensureDatabaseProperties() {
   if (!names.includes("トピック") && !names.includes("マルチセレクト")) {
     updates.トピック = { multi_select: {} };
     console.log("  プロパティ追加: トピック");
+  }
+
+  // --- アナリティクス用プロパティ ---
+  const analyticsProps = {
+    表示回数: { number: { format: "number" } },
+    ユーザー数: { number: { format: "number" } },
+    エンゲージメント時間: { number: { format: "number" } },
+    イベント数: { number: { format: "number" } },
+    計測期間: { rich_text: {} },
+  };
+
+  for (const [propName, propConfig] of Object.entries(analyticsProps)) {
+    if (!names.includes(propName)) {
+      updates[propName] = propConfig;
+      console.log(`  プロパティ追加: ${propName}`);
+    }
   }
 
   if (Object.keys(updates).length > 0) {
@@ -351,14 +489,9 @@ async function deletePageBlocks(pageId) {
 }
 
 /**
- * 既存ページのプロパティと本文を更新する
+ * レポート情報とアナリティクスデータからNotionプロパティを構築する
  */
-async function updateNotionPage(pageId, fileName, markdown) {
-  const title = parseTitle(markdown);
-  const info = parseBasicInfo(markdown);
-  const stats = parseStats(markdown);
-  const sections = parseSections(markdown);
-
+function buildProperties(fileName, title, info, stats, analytics) {
   const topics = (info["トピック"] || "")
     .split(/[,、]/)
     .map((t) => t.trim())
@@ -399,6 +532,31 @@ async function updateNotionPage(pageId, fileName, markdown) {
     },
   };
 
+  // アナリティクスデータがあれば追加
+  if (analytics) {
+    properties.表示回数 = { number: analytics.views };
+    properties.ユーザー数 = { number: analytics.users };
+    properties.エンゲージメント時間 = { number: Math.round(analytics.engagementTime * 10) / 10 };
+    properties.イベント数 = { number: analytics.events };
+    properties.計測期間 = {
+      rich_text: [{ type: "text", text: { content: analytics.period } }],
+    };
+  }
+
+  return properties;
+}
+
+/**
+ * 既存ページのプロパティと本文を更新する
+ */
+async function updateNotionPage(pageId, fileName, markdown, analytics) {
+  const title = parseTitle(markdown);
+  const info = parseBasicInfo(markdown);
+  const stats = parseStats(markdown);
+  const sections = parseSections(markdown);
+
+  const properties = buildProperties(fileName, title, info, stats, analytics);
+
   // プロパティ更新
   await notion.pages.update({ page_id: pageId, properties });
 
@@ -427,71 +585,13 @@ async function updateNotionPage(pageId, fileName, markdown) {
 /**
  * レポートをNotionページとして作成する
  */
-async function createNotionPage(fileName, markdown) {
+async function createNotionPage(fileName, markdown, analytics) {
   const title = parseTitle(markdown);
   const info = parseBasicInfo(markdown);
   const stats = parseStats(markdown);
   const sections = parseSections(markdown);
 
-  // トピックをmulti_selectに変換
-  const topics = (info["トピック"] || "")
-    .split(/[,、]/)
-    .map((t) => t.trim())
-    .filter(Boolean)
-    .map((name) => ({ name }));
-
-  // プロパティ
-  const properties = {
-    タイトル: {
-      title: [{ type: "text", text: { content: title } }],
-    },
-    ファイル名: {
-      rich_text: [{ type: "text", text: { content: fileName } }],
-    },
-    テーマ: {
-      rich_text: [
-        { type: "text", text: { content: info["テーマ"] || "" } },
-      ],
-    },
-    スラッグ: {
-      rich_text: [
-        { type: "text", text: { content: info["スラッグ"] || "" } },
-      ],
-    },
-    カテゴリ: {
-      select: info["カテゴリ"] ? { name: info["カテゴリ"] } : null,
-    },
-    トピック: {
-      multi_select: topics,
-    },
-    ステータス: {
-      select: info["ステータス"] ? { name: info["ステータス"] } : null,
-    },
-    作成日: {
-      date: info["作成日"] ? { start: info["作成日"] } : null,
-    },
-    総文字数: {
-      rich_text: [
-        {
-          type: "text",
-          text: { content: stats["総文字数（Markdown含む）"] || "" },
-        },
-      ],
-    },
-    セクション数: {
-      rich_text: [
-        {
-          type: "text",
-          text: { content: stats["セクション数（##以上）"] || "" },
-        },
-      ],
-    },
-    コードブロック数: {
-      rich_text: [
-        { type: "text", text: { content: stats["コードブロック数"] || "" } },
-      ],
-    },
-  };
+  const properties = buildProperties(fileName, title, info, stats, analytics);
 
   // ページ本文（各セクションをheading_2 + 本文ブロックに変換）
   const children = [];
@@ -539,6 +639,9 @@ async function main() {
   // データベースのプロパティを確認・更新
   await ensureDatabaseProperties();
 
+  // アナリティクスデータを読み込み
+  const analyticsMap = await loadLatestAnalytics();
+
   console.log(`対象ディレクトリ: ${CONTEXT_DIR}`);
 
   // contextディレクトリのレポートファイル一覧
@@ -564,11 +667,18 @@ async function main() {
   for (const fileName of files) {
     const pageId = existing.get(fileName);
 
+    // レポートのタイトルからアナリティクスデータを検索
+    const markdown = await readFile(join(CONTEXT_DIR, fileName), "utf-8");
+    const reportTitle = parseTitle(markdown);
+    const analytics = findAnalyticsForReport(analyticsMap, reportTitle);
+    if (analytics) {
+      console.log(`  [GA] ${reportTitle}: ${analytics.views}PV / ${analytics.users}ユーザー`);
+    }
+
     if (pageId && isUpdate) {
       // 更新モード: 既存ページを上書き
       try {
-        const markdown = await readFile(join(CONTEXT_DIR, fileName), "utf-8");
-        await updateNotionPage(pageId, fileName, markdown);
+        await updateNotionPage(pageId, fileName, markdown, analytics);
         console.log(`  [更新] ${fileName}`);
         updated++;
       } catch (err) {
@@ -580,8 +690,7 @@ async function main() {
     } else {
       // 新規作成
       try {
-        const markdown = await readFile(join(CONTEXT_DIR, fileName), "utf-8");
-        await createNotionPage(fileName, markdown);
+        await createNotionPage(fileName, markdown, analytics);
         console.log(`  [登録] ${fileName}`);
         created++;
       } catch (err) {
