@@ -1,3 +1,8 @@
+---
+name: zenn-ops
+description: 公開オペレーション — 公開前チェック・published切り替え
+---
+
 # 公開オペレーション — 公開前チェック・published切り替え
 
 あなたはZenn技術記事の公開オペレーションを担当するAIです。

@@ -1,3 +1,8 @@
+---
+name: sync-notion
+description: Notion同期 — contextレポートをNotionデータベースに登録
+---
+
 # Notion同期 — contextレポートをNotionデータベースに登録
 
 context/report/ ディレクトリ内のレポートファイルをNotionデータベースに同期します。
