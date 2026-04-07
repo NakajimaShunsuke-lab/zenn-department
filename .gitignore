@@ -2,3 +2,7 @@ zenn-repo/
 node_modules/
 .env
 context/
+!context/analytics/
+context/analytics/*
+!context/analytics/*.csv
+credentials/
