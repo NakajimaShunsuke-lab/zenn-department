@@ -25,6 +25,21 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Verify secrets are configured
+        env:
+          GA_PROPERTY_ID: ${{ secrets.GA_PROPERTY_ID }}
+          GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
+        run: |
+          if [ -z "$GA_PROPERTY_ID" ]; then
+            echo "::error::GA_PROPERTY_ID シークレットが未設定です"
+            exit 1
+          fi
+          if [ -z "$GOOGLE_CREDENTIALS_JSON" ]; then
+            echo "::error::GOOGLE_CREDENTIALS_JSON シークレットが未設定です"
+            exit 1
+          fi
+          echo "✓ シークレットが設定されています (GA_PROPERTY_ID=${#GA_PROPERTY_ID}文字, GOOGLE_CREDENTIALS_JSON=${#GOOGLE_CREDENTIALS_JSON}文字)"
+
       - name: Fetch GA4 analytics data (past 7 days)
         env:
           GA_PROPERTY_ID: ${{ secrets.GA_PROPERTY_ID }}
