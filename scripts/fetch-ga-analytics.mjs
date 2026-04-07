@@ -39,26 +39,41 @@ if (!GA_PROPERTY_ID) {
 function createClient() {
   // 方法1: GOOGLE_CREDENTIALS_JSON 環境変数（GitHub Actions向け）
   if (GOOGLE_CREDENTIALS_JSON) {
+    console.log("認証方法: GOOGLE_CREDENTIALS_JSON 環境変数を使用");
     let credentials;
     try {
       // Base64エンコードされている場合
       credentials = JSON.parse(
         Buffer.from(GOOGLE_CREDENTIALS_JSON, "base64").toString("utf-8")
       );
+      console.log("  Base64デコード成功");
     } catch {
       // プレーンJSON文字列の場合
       credentials = JSON.parse(GOOGLE_CREDENTIALS_JSON);
+      console.log("  プレーンJSONとしてパース");
     }
+    if (!credentials.client_email || !credentials.private_key) {
+      console.error("エラー: credentials に client_email または private_key が含まれていません。");
+      console.error("  含まれるキー:", Object.keys(credentials).join(", "));
+      process.exit(1);
+    }
+    console.log(`  サービスアカウント: ${credentials.client_email}`);
     return new BetaAnalyticsDataClient({ credentials });
   }
 
   // 方法2: GOOGLE_APPLICATION_CREDENTIALS 環境変数（ローカル向け）
-  // .env の相対パスを絶対パスに解決してからSDKに渡す
   if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
     const credPath = join(PROJECT_ROOT, process.env.GOOGLE_APPLICATION_CREDENTIALS);
+    console.log(`認証方法: GOOGLE_APPLICATION_CREDENTIALS ファイルを使用 (${credPath})`);
     process.env.GOOGLE_APPLICATION_CREDENTIALS = credPath;
+    return new BetaAnalyticsDataClient();
   }
-  return new BetaAnalyticsDataClient();
+
+  console.error("エラー: 認証情報が見つかりません。");
+  console.error("  以下のいずれかを設定してください:");
+  console.error("  - GOOGLE_CREDENTIALS_JSON 環境変数（Base64またはJSON文字列）");
+  console.error("  - GOOGLE_APPLICATION_CREDENTIALS 環境変数（キーファイルパス）");
+  process.exit(1);
 }
 
 // ---------------------------------------------------------------------------
