@@ -38,7 +38,6 @@ jobs:
             echo "::error::GOOGLE_CREDENTIALS_JSON シークレットが未設定です"
             exit 1
           fi
-          echo "✓ シークレットが設定されています (GA_PROPERTY_ID=${#GA_PROPERTY_ID}文字, GOOGLE_CREDENTIALS_JSON=${#GOOGLE_CREDENTIALS_JSON}文字)"
 
       - name: Fetch GA4 analytics data (past 7 days)
         env:
