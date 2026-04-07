@@ -53,7 +53,11 @@ function createClient() {
   }
 
   // 方法2: GOOGLE_APPLICATION_CREDENTIALS 環境変数（ローカル向け）
-  // gcloud CLI のデフォルト認証も自動検出される
+  // .env の相対パスを絶対パスに解決してからSDKに渡す
+  if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+    const credPath = join(PROJECT_ROOT, process.env.GOOGLE_APPLICATION_CREDENTIALS);
+    process.env.GOOGLE_APPLICATION_CREDENTIALS = credPath;
+  }
   return new BetaAnalyticsDataClient();
 }
 
