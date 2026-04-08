@@ -217,12 +217,21 @@ function parseBasicInfo(markdown) {
   const basicSection = markdown.match(/## 基本情報\s*\n([\s\S]*?)(?=\n## )/);
   if (!basicSection) return info;
 
-  const rows = basicSection[1].matchAll(/\|\s*(.+?)\s*\|\s*(.+?)\s*\|/g);
-  for (const row of rows) {
-    const key = row[1].trim();
-    const value = row[2].trim();
-    if (key === "---" || key === "項目") continue;
-    info[key] = value;
+  // リスト形式（- key: value）をパース
+  const listRows = basicSection[1].matchAll(/^- (.+?):\s*(.+)$/gm);
+  for (const row of listRows) {
+    info[row[1].trim()] = row[2].trim();
+  }
+
+  // テーブル形式（| key | value |）もフォールバックとしてパース
+  if (Object.keys(info).length === 0) {
+    const tableRows = basicSection[1].matchAll(/\|\s*(.+?)\s*\|\s*(.+?)\s*\|/g);
+    for (const row of tableRows) {
+      const key = row[1].trim();
+      const value = row[2].trim();
+      if (key === "---" || key === "項目") continue;
+      info[key] = value;
+    }
   }
   return info;
 }
@@ -235,12 +244,21 @@ function parseStats(markdown) {
   const statsSection = markdown.match(/## 統計情報\s*\n([\s\S]*?)(?=\n## |$)/);
   if (!statsSection) return stats;
 
-  const rows = statsSection[1].matchAll(/\|\s*(.+?)\s*\|\s*(.+?)\s*\|/g);
-  for (const row of rows) {
-    const key = row[1].trim();
-    const value = row[2].trim();
-    if (key === "---" || key === "項目") continue;
-    stats[key] = value;
+  // リスト形式（- key: value）をパース
+  const listRows = statsSection[1].matchAll(/^- (.+?):\s*(.+)$/gm);
+  for (const row of listRows) {
+    stats[row[1].trim()] = row[2].trim();
+  }
+
+  // テーブル形式（| key | value |）もフォールバックとしてパース
+  if (Object.keys(stats).length === 0) {
+    const tableRows = statsSection[1].matchAll(/\|\s*(.+?)\s*\|\s*(.+?)\s*\|/g);
+    for (const row of tableRows) {
+      const key = row[1].trim();
+      const value = row[2].trim();
+      if (key === "---" || key === "項目") continue;
+      stats[key] = value;
+    }
   }
   return stats;
 }
@@ -492,7 +510,9 @@ async function deletePageBlocks(pageId) {
  * レポート情報とアナリティクスデータからNotionプロパティを構築する
  */
 function buildProperties(fileName, title, info, stats, analytics) {
-  const topics = (info["トピック"] || "")
+  // 統計情報の「使用タグ」または基本情報の「トピック」からトピックを取得
+  const topicSource = stats["使用タグ"] || info["トピック"] || "";
+  const topics = topicSource
     .split(/[,、]/)
     .map((t) => t.trim())
     .filter(Boolean)
@@ -509,23 +529,20 @@ function buildProperties(fileName, title, info, stats, analytics) {
       rich_text: [{ type: "text", text: { content: info["テーマ"] || "" } }],
     },
     スラッグ: {
-      rich_text: [{ type: "text", text: { content: info["スラッグ"] || "" } }],
+      rich_text: [{ type: "text", text: { content: info["slug"] || info["スラッグ"] || "" } }],
     },
     カテゴリ: {
       select: info["カテゴリ"] ? { name: info["カテゴリ"] } : null,
     },
     トピック: { multi_select: topics },
-    ステータス: {
-      select: info["ステータス"] ? { name: info["ステータス"] } : null,
-    },
     作成日: {
       date: info["作成日"] ? { start: info["作成日"] } : null,
     },
     総文字数: {
-      rich_text: [{ type: "text", text: { content: stats["総文字数（Markdown含む）"] || "" } }],
+      rich_text: [{ type: "text", text: { content: stats["文字数"] || stats["総文字数（Markdown含む）"] || "" } }],
     },
     セクション数: {
-      rich_text: [{ type: "text", text: { content: stats["セクション数（##以上）"] || "" } }],
+      rich_text: [{ type: "text", text: { content: stats["セクション数"] || stats["セクション数（##以上）"] || "" } }],
     },
     コードブロック数: {
       rich_text: [{ type: "text", text: { content: stats["コードブロック数"] || "" } }],
