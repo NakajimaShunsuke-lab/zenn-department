@@ -6,7 +6,7 @@ paths: ["zenn-repo/articles/**/*.md", "zenn-repo/briefs/**/*.md"]
 # 記事執筆ルール
 
 ## 必須参照
-- 執筆前に `CONTRIBUTING_ZENN.md` のガイドラインを読み込むこと
+- 執筆前に `.claude/templates/CONTRIBUTING_ZENN.md` のガイドラインを読み込むこと
 - 企画書がある場合は `zenn-repo/briefs/` から読み込むこと
 - `context/knowledge/` のナレッジファイルを参照すること（特に `writing-patterns.md`）
 - `context/report/` に過去レポートがあれば改善点を確認すること

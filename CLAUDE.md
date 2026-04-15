@@ -21,7 +21,7 @@
 - slugはZennの永続URLになるため変更不可、企画時に確定させる
 
 ## 共通ルール
-- 記事のMarkdown執筆時は `CONTRIBUTING_ZENN.md` のガイドラインを厳格に遵守する
+- 記事のMarkdown執筆時は `.claude/templates/CONTRIBUTING_ZENN.md` のガイドラインを厳格に遵守する
 - `context/knowledge/` と `context/report/` は企画・執筆・レビュー時に参照する
 
 ### レポートとNotion同期

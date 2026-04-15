@@ -37,7 +37,7 @@ paths: ["zenn-repo/articles/**/*.md"]
 - 「はじめに」「まとめ」セクションがあるか
 
 ## 必須参照
-- `CONTRIBUTING_ZENN.md` のガイドライン
+- `.claude/templates/CONTRIBUTING_ZENN.md` のガイドライン
 - `context/knowledge/review-lessons.md`（存在する場合）
 - `context/report/` の過去レポートの指摘傾向
 

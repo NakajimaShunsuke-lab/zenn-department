@@ -7,6 +7,8 @@ paths: ["context/**/*.md", "context/**/*.csv"]
 
 ## レポート
 - ファイル名: `context/report/report_YYYYMMDD_テーマ名.md`
+- **フォーマット: `.claude/templates/REPORT_TEMPLATE.md` に厳密に従うこと（セクション構成・順序・書式の変更禁止）**
+- レポート作成時は必ずテンプレートを読み込んでから執筆する
 - レポート作成後は `npm run sync-notion` でNotionに同期する
 - `.env` に `NOTION_TOKEN` と `NOTION_DATABASE_ID` が未設定の場合はスキップしてユーザーに通知
 

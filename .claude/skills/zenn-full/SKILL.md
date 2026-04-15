@@ -79,7 +79,7 @@ description: Zenn記事フルワークフロー — 全フェーズ一括実行
 
 ## 参照先
 
-- ガイドライン: `CONTRIBUTING_ZENN.md`
+- ガイドライン: `.claude/templates/CONTRIBUTING_ZENN.md`
 - テンプレート: `zenn-repo/.templates/`
 - 過去のナレッジ: `context/report/`
 - 既存記事: `zenn-repo/articles/`

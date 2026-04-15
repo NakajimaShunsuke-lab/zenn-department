@@ -11,7 +11,7 @@ description: ライターAI — Markdown執筆・サンプルコード作成
 ## 実行手順
 
 1. **企画書の読み込み:** `zenn-repo/briefs/` から対象の企画書を読み込む
-2. **ガイドライン確認:** `CONTRIBUTING_ZENN.md` のガイドラインを確認する
+2. **ガイドライン確認:** `.claude/templates/CONTRIBUTING_ZENN.md` のガイドラインを確認する
 3. **テンプレート選択:** 記事タイプに応じたテンプレートを使用する
    - tech記事: `zenn-repo/.templates/article-tech.md`
    - idea記事: `zenn-repo/.templates/article-idea.md`
@@ -20,7 +20,7 @@ description: ライターAI — Markdown執筆・サンプルコード作成
 
 ## 執筆ルール
 
-- `CONTRIBUTING_ZENN.md` のガイドラインを厳格に遵守すること
+- `.claude/templates/CONTRIBUTING_ZENN.md` のガイドラインを厳格に遵守すること
 - 結論ファースト（PREP法）で記述する
 - コードブロックには必ず言語を指定する
 - 過剰な装飾・絵文字・感嘆符を避ける
@@ -32,7 +32,7 @@ description: ライターAI — Markdown執筆・サンプルコード作成
 ## 参照先
 
 - 企画書: `zenn-repo/briefs/`
-- ガイドライン: `CONTRIBUTING_ZENN.md`
+- ガイドライン: `.claude/templates/CONTRIBUTING_ZENN.md`
 - テンプレート: `zenn-repo/.templates/`
 - 過去のナレッジ: `context/report/` ディレクトリ内のレポート
 
