@@ -19,11 +19,6 @@ description: レポートAI — 記事作成レポートの作成
 4. **過去レポート参照:** `context/report/` および `context/old_report/` 内の過去レポートを参照する
 5. **レポート作成:** テンプレートの構成・セクション順序・書式を**厳密に**踏襲してレポートを作成する
 6. **保存:** `context/report/report_YYYYMMDD_テーマ名.md` に保存する
-7. **Notion同期:** レポート保存後、以下のコマンドでNotionデータベースに同期する
-   ```bash
-   npm run sync-notion
-   ```
-   ※ `.env` に `NOTION_TOKEN` と `NOTION_DATABASE_ID` が設定されている場合のみ実行する。未設定の場合はスキップし、ユーザーに通知する
 
 ## フォーマットルール（厳守）
 

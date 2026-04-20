@@ -5,13 +5,10 @@
   "type": "module",
   "scripts": {
     "fetch-analytics": "node scripts/fetch-ga-analytics.mjs",
-    "fetch-analytics:weekly": "node scripts/fetch-ga-analytics.mjs --days 7",
-    "sync-notion": "node scripts/sync-to-notion.mjs",
-    "sync-notion:update": "node scripts/sync-to-notion.mjs --update"
+    "fetch-analytics:weekly": "node scripts/fetch-ga-analytics.mjs --days 7"
   },
   "dependencies": {
     "@google-analytics/data": "^4.8.0",
-    "@notionhq/client": "^2.2.0",
     "dotenv": "^16.4.0"
   }
 }

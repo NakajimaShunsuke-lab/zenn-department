@@ -24,11 +24,9 @@
 - 記事のMarkdown執筆時は `.claude/templates/CONTRIBUTING_ZENN.md` のガイドラインを厳格に遵守する
 - `context/knowledge/` と `context/report/` は企画・執筆・レビュー時に参照する
 
-### レポートとNotion同期
+### レポート
 - レポートは `context/report/report_YYYYMMDD_テーマ名.md` の形式で保存する
-- レポート作成後は `npm run sync-notion` でNotionに同期する（`.env` 設定済みの場合）
-- `npm run sync-notion:update` でアナリティクスデータを含めたNotion更新が可能
-- `context/report/` 内のレポートは整理のため削除されることがあるが、Notionのデータは削除しない
+- `context/report/` 内のレポートは `/zenn-knowledge` による処理後に `context/old_report/` へアーカイブされる
 
 ## ワークフロー
 企画 → 執筆 → レビュー → 画像 → 公開チェック → レポート → デプロイ
